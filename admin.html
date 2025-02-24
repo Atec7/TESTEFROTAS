@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Administrador</title>
     <script src="script.js"></script>
     <style>
@@ -55,6 +57,7 @@
     <div id="solicitacoes"></div>
 
     <script>
+        // Função para carregar as solicitações no painel do administrador
         function carregarSolicitacoes() {
             const solicitacoes = JSON.parse(localStorage.getItem('solicitacoes') || '[]');
             const solicitacoesContainer = document.getElementById('solicitacoes');
@@ -91,11 +94,8 @@
 
                 // Atualiza o status no painel do solicitante
                 localStorage.setItem(`status_${matricula}`, 'aprovada');
-
-                // Notifica o solicitante
+                carregarSolicitacoes();
                 alert(`Solicitação de matrícula ${matricula} foi aprovada!`);
-                window.location.reload(); // Recarrega a página para refletir o novo status
-                carregarSolicitacoes(); // Atualiza o painel do administrador
             }
         }
 
@@ -112,14 +112,16 @@
 
                     // Atualiza o status no painel do solicitante
                     localStorage.setItem(`status_${matricula}`, 'reprovada');
-                    window.location.reload(); // Recarrega a página para refletir o novo status
                     carregarSolicitacoes();
                     alert(`Solicitação de matrícula ${matricula} foi reprovada! Justificativa: ${justificativa}`);
                 }
             }
         }
 
-        window.onload = carregarSolicitacoes;
+        // Função chamada quando a página carrega para exibir as solicitações
+        window.onload = function() {
+            carregarSolicitacoes();
+        }
     </script>
 </body>
 </html>
