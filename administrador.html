@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Painel do Administrador</title>
+    <script src="script.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #solicitacoes {
+            width: 600px;
+            margin: 20px auto;
+        }
+
+        .solicitacao {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .solicitacao p {
+            margin: 5px 0;
+        }
+
+        .solicitacao button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .solicitacao button.reprovar {
+            background-color: #f44336;
+        }
+
+        #notificacao {
+            background-color: #ffeb3b;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Painel do Administrador</h1>
+    <div id="notificacao"></div>
+    <div id="solicitacoes"></div>
+
+    <script>
+        function carregarSolicitacoes() {
+            const solicitacoes = JSON.parse(localStorage.getItem('solicitacoes') || '[]');
+            const solicitacoesContainer = document.getElementById('solicitacoes');
+            solicitacoesContainer.innerHTML = '';
+
+            solicitacoes.forEach(solicitacao => {
+                const solicitacaoDiv = document.createElement('div');
+                solicitacaoDiv.classList.add('solicitacao');
+                solicitacaoDiv.innerHTML = `
+                    <p><strong>Matrícula:</strong> ${solicitacao.matricula}</p>
+                    <p><strong>Solicitante:</strong> ${solicitacao.solicitante}</p>
+                    <p><strong>Status:</strong> <span id="status-${solicitacao.matricula}">${solicitacao.status}</span></p>
+                    <button onclick="aprovarSolicitacao('${solicitacao.matricula}')">Aprovar</button>
+                    <button class="reprovar" onclick="reprovarSolicitacao('${solicitacao.matricula}')">Reprovar</button>
+                `;
+                solicitacoesContainer.appendChild(solicitacaoDiv);
+
+                // Exibe a notificação para o administrador
+                if (solicitacao.status === 'pendente') {
+                    const notificacao = document.getElementById('notificacao');
+                    notificacao.style.display = 'block';
+                    notificacao.textContent = `Nova solicitação de matrícula ${solicitacao.matricula}. Clique para aprovar ou reprovar.`;
+                }
+            });
+        }
+
+        // Função para aprovar a solicitação
+        function aprovarSolicitacao(matricula) {
+            const solicitacoes = JSON.parse(localStorage.getItem('solicitacoes') || '[]');
+            const solicitacao = solicitacoes.find(s => s.matricula === matricula);
+            if (solicitacao) {
+                solicitacao.status = 'aprovada';
+                localStorage.setItem('solicitacoes', JSON.stringify(solicitacoes));
+
+                // Atualiza o status no painel do solicitante
+                localStorage.setItem(`status_${matricula}`, 'aprovada');
+
+                // Notifica o solicitante
+                alert(`Solicitação de matrícula ${matricula} foi aprovada!`);
+                window.location.reload(); // Recarrega a página para refletir o novo status
+                carregarSolicitacoes(); // Atualiza o painel do administrador
+            }
+        }
+
+        // Função para reprovar a solicitação com justificativa
+        function reprovarSolicitacao(matricula) {
+            const justificativa = prompt('Digite a justificativa para a reprovação');
+            if (justificativa) {
+                const solicitacoes = JSON.parse(localStorage.getItem('solicitacoes') || '[]');
+                const solicitacao = solicitacoes.find(s => s.matricula === matricula);
+                if (solicitacao) {
+                    solicitacao.status = 'reprovada';
+                    solicitacao.justificativa = justificativa;
+                    localStorage.setItem('solicitacoes', JSON.stringify(solicitacoes));
+
+                    // Atualiza o status no painel do solicitante
+                    localStorage.setItem(`status_${matricula}`, 'reprovada');
+                    window.location.reload(); // Recarrega a página para refletir o novo status
+                    carregarSolicitacoes();
+                    alert(`Solicitação de matrícula ${matricula} foi reprovada! Justificativa: ${justificativa}`);
+                }
+            }
+        }
+
+        window.onload = carregarSolicitacoes;
+    </script>
+</body>
+</html>
