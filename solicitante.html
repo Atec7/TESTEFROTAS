@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Solicitação de Carro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Solicitante</title>
     <script src="script.js"></script>
     <style>
         body {
@@ -9,105 +11,63 @@
             margin: 20px;
         }
 
-        form {
-            width: 400px;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-        }
-
-        #detalhesSolicitacao {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
+        h1 {
+            text-align: center;
         }
 
         #solicitacaoForm {
-            display: block;
+            width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
         }
 
-        #solicitacaoForm.solicitacaoEnviada {
-            display: none;
+        #solicitacaoForm input, #solicitacaoForm select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
         }
 
-        #novaSolicitacaoButton {
+        #statusSolicitacao {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .solicitacaoEnviada {
             display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Solicitação de Carro</h1>
-    <form id="solicitacaoForm">
-        <!-- Campos do formulário -->
-        <label for="matricula">Matrícula:</label><br>
-        <input type="text" id="matricula" name="matricula"><br><br>
-
-        <label for="solicitante">Solicitante:</label><br>
-        <input type="text" id="solicitante" name="solicitante"><br><br>
-
-        <label for="dataRetirada">Data Retirada:</label><br>
-        <input type="date" id="dataRetirada" name="dataRetirada"><br><br>
-
-        <label for="horaRetirada">Hora Retirada:</label><br>
-        <input type="time" id="horaRetirada" name="horaRetirada"><br><br>
-
-        <label for="dataDevolucao">Data Devolução:</label><br>
-        <input type="date" id="dataDevolucao" name="dataDevolucao"><br><br>
-
-        <label for="horaDevolucao">Hora Devolução:</label><br>
-        <input type="time" id="horaDevolucao" name="horaDevolucao"><br><br>
-
-        <label for="carro">Carro:</label><br>
-        <select id="carro" name="carro">
-            <option value="carro1">Carro 1</option>
-            <option value="carro2">Carro 2</option>
-            <option value="carro3">Carro 3</option>
-        </select><br><br>
-
-        <label for="motivo">Motivo:</label><br>
-        <textarea id="motivo" name="motivo"></textarea><br><br>
-
-        <label for="prioridade">Nível de Prioridade:</label><br>
-        <select id="prioridade" name="prioridade">
-          <option value="Baixa">Baixa</option>
-          <option value="Media">Média</option>
-          <option value="Alta">Alta</option>
-        </select><br><br>
-
-        <button type="button" onclick="enviarSolicitacao()">Enviar</button>
-    </form>
-    
-    <div id="detalhesSolicitacao" style="display: none;">
-        <h2>Detalhes da Solicitação</h2>
-        <p><strong>Matrícula:</strong> <span id="detalhesMatricula"></span></p>
-        <p><strong>Solicitante:</strong> <span id="detalhesSolicitante"></span></p>
-        <p><strong>Status:</strong> <span id="detalhesStatus"></span></p>
+    <h1>Painel do Solicitante</h1>
+    <div id="solicitacaoForm">
+        <h2>Nova Solicitação de Carro</h2>
+        <form id="solicitacaoForm" onsubmit="enviarSolicitacao(event)">
+            <label for="solicitante">Solicitante:</label>
+            <input type="text" id="solicitante" name="solicitante" required>
+            <label for="carro">Carro:</label>
+            <select id="carro" name="carro" required>
+                <option value="Carro A">Carro A</option>
+                <option value="Carro B">Carro B</option>
+                <option value="Carro C">Carro C</option>
+            </select>
+            <label for="dataRetirada">Data de Retirada:</label>
+            <input type="date" id="dataRetirada" name="dataRetirada" required>
+            <label for="horaRetirada">Hora de Retirada:</label>
+            <input type="time" id="horaRetirada" name="horaRetirada" required>
+            <button type="submit">Enviar Solicitação</button>
+        </form>
     </div>
 
-    <button id="novaSolicitacaoButton" onclick="mostrarFormulario()">Nova Solicitação</button>
+    <div id="statusSolicitacao" class="solicitacaoEnviada">
+        <p><strong>Status da Solicitação:</strong> <span id="statusSolicitacaoTexto"></span></p>
+    </div>
 
     <script>
-        // Salva a solicitação no localStorage para persistência
-        function enviarSolicitacao() {
+        // Função para enviar a solicitação
+        function enviarSolicitacao(event) {
+            event.preventDefault();
             const form = document.getElementById('solicitacaoForm');
             const formData = new FormData(form);
             const solicitacao = {};
@@ -115,59 +75,30 @@
 
             // Simula o envio da solicitação
             let solicitacoes = JSON.parse(localStorage.getItem('solicitacoes') || '[]');
+            solicitacao.matricula = '12345'; // Defina um identificador único para o solicitante
             solicitacao.status = 'pendente';
-
-            // Verifica se o carro já está agendado
-            const carroOcupado = solicitacoes.some(s => s.carro === solicitacao.carro &&
-                s.dataRetirada === solicitacao.dataRetirada && s.horaRetirada === solicitacao.horaRetirada);
-            if (carroOcupado) {
-                alert('Este carro já está agendado para o horário solicitado!');
-                return;
-            }
 
             solicitacoes.push(solicitacao);
             localStorage.setItem('solicitacoes', JSON.stringify(solicitacoes));
 
-            exibirDetalhesSolicitacao(solicitacao);
-
-            // Esconde o formulário
-            form.classList.add('solicitacaoEnviada');
-            localStorage.setItem('matriculaSolicitacao', solicitacao.matricula);
+            // Salva a solicitação no painel do solicitante
             localStorage.setItem(`status_${solicitacao.matricula}`, 'pendente');
-            document.getElementById('novaSolicitacaoButton').style.display = 'none'; // Esconde o botão de nova solicitação
 
-            // Exibe o botão de nova solicitação
-            setTimeout(function() {
-                document.getElementById('novaSolicitacaoButton').style.display = 'block';
-            }, 5000); // Mostra o botão após 5 segundos
+            // Exibe o status de solicitação
+            document.getElementById('statusSolicitacaoTexto').textContent = 'Sua solicitação foi enviada e está pendente.';
+            document.getElementById('statusSolicitacao').classList.remove('solicitacaoEnviada');
         }
 
-        // Exibe os detalhes da solicitação
-        function exibirDetalhesSolicitacao(solicitacao) {
-            document.getElementById('detalhesMatricula').textContent = solicitacao.matricula;
-            document.getElementById('detalhesSolicitante').textContent = solicitacao.solicitante;
-            document.getElementById('detalhesStatus').textContent = solicitacao.status;
-            document.getElementById('detalhesSolicitacao').style.display = 'block';
-        }
-
-        function mostrarFormulario() {
-            document.getElementById('solicitacaoForm').classList.remove('solicitacaoEnviada');
-            document.getElementById('novaSolicitacaoButton').style.display = 'none';
-        }
-
-        // Carregar status da solicitação ao recarregar a página
+        // Função para carregar o status da solicitação do solicitante
         window.onload = function() {
             const matricula = localStorage.getItem('matriculaSolicitacao');
             const status = localStorage.getItem(`status_${matricula}`);
 
             if (status) {
-                const solicitacao = {
-                    matricula: matricula,
-                    status: status
-                };
-                exibirDetalhesSolicitacao(solicitacao);
+                document.getElementById('statusSolicitacaoTexto').textContent = `Status: ${status}`;
+                document.getElementById('statusSolicitacao').classList.remove('solicitacaoEnviada');
             }
-        };
+        }
     </script>
 </body>
 </html>
